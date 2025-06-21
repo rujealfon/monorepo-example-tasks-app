@@ -7,8 +7,8 @@ export type AppEnv = {
     AUTH_SECRET: string;
     GITHUB_CLIENT_ID: string;
     GITHUB_CLIENT_SECRET: string;
-    ASSETS: Fetcher;
-    DB: D1Database;
+    DATABASE_URL: string;
+    PORT: number;
   };
 };
 

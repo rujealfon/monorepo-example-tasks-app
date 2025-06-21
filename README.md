@@ -1,12 +1,14 @@
-# Hono + React / Vite + Cloudflare + pnpm workspaces monorepo
+# Hono + React / Vite + bun workspaces monorepo
 
-A monorepo setup using pnpm workspaces with a Hono API and React / vite client deployed to Cloudflare Workers / Static Assets / D1.
+A monorepo setup using bun workspaces with a Hono API and React / vite client. Deploy to either Fly.io or Vercel.
 
 Features:
 
-- Run tasks in parallel across apps / packages with pnpm
-- Hono API [proxied with vite](./apps/web/vite.config.ts) during development
+- Run tasks in parallel across apps / packages with bun
+- Hono API running natively on Bun with [proxied with vite](./apps/web/vite.config.ts) during development
 - Hono [RPC client](packages/api-client/src/index.ts) built during development for faster inference
+- PostgreSQL database with Drizzle ORM
+- Multiple deployment options: Fly.io (Docker) or Vercel (Serverless)
 - Shared Zod validators with drizzle-zod
 - Shared eslint config
 - Shared tsconfig
@@ -38,70 +40,134 @@ Tour:
   - Use any cli to create new apps in here
   - If cloning a git repo in here be sure to delete the `.git` folder so it is not treated as a submodule
 
-> All pnpm commands are run from the root of the repo.
+> All bun commands are run from the root of the repo.
 
 ## Local Setup
 
 ### Install dependencies
 
 ```sh
-pnpm i
+bun install
 ```
 
-### Create / Update Cloudflare D1 Database id
+### Set up PostgreSQL database
+
+Create a `.env` file in `apps/api/` with your database connection:
 
 ```sh
-pnpm dlx wrangler create d1 replace-with-your-database-name-here
+DATABASE_URL="postgresql://username:password@localhost:5432/tasks_app"
+AUTH_SECRET="your-auth-secret-here"
+GITHUB_CLIENT_ID="your-github-client-id"
+GITHUB_CLIENT_SECRET="your-github-client-secret"
 ```
 
-Update `database_name` and `database_id` in [apps/api/wrangler.toml](./apps/api/wrangler.toml) with the output from wrangler.
-
-### Run DB migrations locally
+### Generate and run database migrations
 
 ```sh
-pnpm run -r db:migrate:local
+cd apps/api
+bun run db:generate
+bun run db:migrate
 ```
 
 ### Start Apps
 
 ```sh
-pnpm run dev
+bun run dev
 ```
 
 Visit [http://localhost:5173](http://localhost:5173)
 
-All requests to `/api` will be proxied to the hono server running on [http://localhost:8787](http://localhost:8787)
+All requests to `/api` will be proxied to the hono server running on [http://localhost:3000](http://localhost:3000)
 
 ## Production Setup
 
-### Run DB migrations on Cloudflare D1
+Choose between two deployment options:
+
+### Option 1: Deploy to Fly.io (Recommended for full-stack apps)
+
+#### Install Fly CLI
+
+[Install the Fly CLI](https://fly.io/docs/getting-started/installing-flyctl/) and authenticate:
 
 ```sh
-pnpm run -r db:migrate:remote
+flyctl auth login
 ```
 
-### Deploy
+#### Deploy to Fly.io
 
 ```sh
-pnpm run deploy
+cd apps/api
+fly launch --no-deploy
 ```
+
+Set your production environment variables:
+
+```sh
+fly secrets set DATABASE_URL="your-production-database-url"
+fly secrets set AUTH_SECRET="your-production-auth-secret"
+fly secrets set GITHUB_CLIENT_ID="your-github-client-id"
+fly secrets set GITHUB_CLIENT_SECRET="your-github-client-secret"
+```
+
+Deploy:
+
+```sh
+bun run deploy:fly
+```
+
+### Option 2: Deploy to Vercel (Serverless)
+
+#### Install Vercel CLI
+
+```sh
+npm i -g vercel
+```
+
+#### Deploy to Vercel
+
+```sh
+cd apps/api
+vercel login
+```
+
+Set your production environment variables in Vercel dashboard or via CLI:
+
+```sh
+vercel env add DATABASE_URL
+vercel env add AUTH_SECRET
+vercel env add GITHUB_CLIENT_ID
+vercel env add GITHUB_CLIENT_SECRET
+```
+
+Deploy:
+
+```sh
+bun run deploy:vercel
+```
+
+Note: For Vercel deployment, you'll need to use a serverless-compatible PostgreSQL service like:
+
+- Vercel Postgres
+- Supabase
+- Neon
+- PlanetScale
 
 ## Tasks
 
 ### Lint
 
 ```sh
-pnpm run lint
+bun run lint
 ```
 
 ### Test
 
 ```sh
-pnpm run test
+bun run test
 ```
 
 ### Build
 
 ```sh
-pnpm run build
+bun run build
 ```

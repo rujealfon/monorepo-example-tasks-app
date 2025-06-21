@@ -22,6 +22,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+bun.lockb
 lerna-debug.log*
 
 # misc
@@ -33,4 +34,8 @@ test.db
 dist
 .dev.vars
 public
-.wrangler
+# Fly.io deployment files
+.fly/
+
+# Vercel deployment files
+.vercel

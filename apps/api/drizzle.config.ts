@@ -1,9 +1,13 @@
 import { defineConfig } from "drizzle-kit";
 
-// only used to create migrations
-// we use wrangler to apply migrations (see package.json)
+import { getEnvVar } from "./src/lib/env";
+
+// PostgreSQL migrations are handled via drizzle-kit migrate
 export default defineConfig({
+  dialect: "postgresql",
+  schema: "./src/db/schema/*",
   out: "./src/db/migrations",
-  schema: "./src/db/schema/index.ts",
-  dialect: "sqlite",
+  dbCredentials: {
+    url: getEnvVar("DATABASE_URL"),
+  },
 });

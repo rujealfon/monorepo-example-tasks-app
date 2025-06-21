@@ -6,24 +6,19 @@ import type { AppOpenAPI } from "./types";
 import { BASE_PATH } from "./constants";
 import createAuthConfig from "./create-auth-config";
 import createRouter from "./create-router";
+import { getEnvConfig } from "./env";
 
 export default function createApp() {
   const app = createRouter()
-    .use("*", (c, next) => {
-      if (c.req.path.startsWith(BASE_PATH)) {
-        return next();
-      }
-      // SPA redirect to /index.html
-      const requestUrl = new URL(c.req.raw.url);
-      return c.env.ASSETS.fetch(new URL("/index.html", requestUrl.origin));
-    })
     .basePath(BASE_PATH) as AppOpenAPI;
 
   app
     .use(
       "*",
       async (c, next) => {
-        c.set("authConfig", createAuthConfig(c.env));
+        // Set up environment variables for auth config
+        const env = getEnvConfig();
+        c.set("authConfig", createAuthConfig(env));
         return next();
       },
     )

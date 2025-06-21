@@ -2,11 +2,17 @@
   "name": "tasks-app",
   "version": "1.0.0",
   "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "pnpm run -r --parallel --aggregate-output dev",
-    "build": "pnpm run -r build",
-    "test": "pnpm run -r --parallel test",
-    "lint": "pnpm run -r --parallel lint",
-    "deploy": "pnpm build && pnpm run -r deploy"
+    "dev": "bun run --filter='*' dev",
+    "build": "bun run --filter='*' build",
+    "test": "bun run --filter='*' test",
+    "lint": "bun run --filter='*' lint",
+    "deploy": "bun run build && bun run --filter='*' deploy",
+    "deploy:fly": "bun run build && cd apps/api && bun run deploy",
+    "deploy:vercel": "bun run build && cd apps/api && bun run deploy:vercel"
   }
 }
