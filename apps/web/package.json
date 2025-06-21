@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "clean:deps": "rm -rf node_modules",
+    "clean:dist": "rm -rf dist"
   },
   "dependencies": {
     "@auth/core": "^0.37.4",

@@ -16,7 +16,9 @@
     "test": "cross-env NODE_ENV=test vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply tasks-app --local",
-    "db:migrate:remote": "wrangler d1 migrations apply tasks-app --remote"
+    "db:migrate:remote": "wrangler d1 migrations apply tasks-app --remote",
+    "clean:deps": "rm -rf node_modules",
+    "clean:dist": "rm -rf dist"
   },
   "dependencies": {
     "@auth/core": "^0.37.4",

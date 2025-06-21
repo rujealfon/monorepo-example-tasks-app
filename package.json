@@ -7,6 +7,8 @@
     "build": "pnpm run -r build",
     "test": "pnpm run -r --parallel test",
     "lint": "pnpm run -r --parallel lint",
-    "deploy": "pnpm build && pnpm run -r deploy"
+    "deploy": "pnpm build && pnpm run -r deploy",
+    "clean:deps": "pnpm run -r clean:deps && rm pnpm-lock.yaml",
+    "clean:dist": "pnpm run -r clean:dist"
   }
 }

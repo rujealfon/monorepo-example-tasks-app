@@ -7,7 +7,9 @@
     "dev": "tsc --watch",
     "build": "rm -rf dist && tsc",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "clean:deps": "rm -rf node_modules",
+    "clean:dist": "rm -rf dist"
   },
   "dependencies": {
     "@tasks-app/api": "workspace:^",
@@ -17,6 +19,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241205.0",
+    "eslint": "^9.17.0",
     "typescript": "~5.7.2"
   }
 }
