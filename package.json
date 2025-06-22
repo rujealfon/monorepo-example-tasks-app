@@ -2,13 +2,17 @@
   "name": "tasks-app",
   "version": "1.0.0",
   "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "pnpm run -r --parallel --aggregate-output dev",
-    "build": "pnpm run -r build",
-    "test": "pnpm run -r --parallel test",
-    "lint": "pnpm run -r --parallel lint",
-    "deploy": "pnpm build && pnpm run -r deploy",
-    "clean:deps": "pnpm run -r clean:deps && rm pnpm-lock.yaml",
-    "clean:dist": "pnpm run -r clean:dist"
+    "dev": "bun run --filter='*' dev",
+    "build": "bun run --filter='@tasks-app/api-client' build && bun run --filter='@tasks-app/web' build",
+    "test": "bun run --filter='*' test",
+    "lint": "bun run --filter='*' lint",
+    "deploy": "bun run build && bun run --filter='*' deploy",
+    "clean:deps": "bun run --filter='*' clean:deps && rm -f bun.lock",
+    "clean:dist": "bun run --filter='*' clean:dist"
   }
 }

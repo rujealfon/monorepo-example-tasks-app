@@ -1,10 +1,10 @@
-# Hono + React / Vite + Cloudflare + pnpm workspaces monorepo
+# Hono + React / Vite + Cloudflare + bun workspaces monorepo
 
-A monorepo setup using pnpm workspaces with a Hono API and React / vite client deployed to Cloudflare Workers / Static Assets / D1.
+A monorepo setup using bun workspaces with a Hono API and React / vite client deployed to Cloudflare Workers / Static Assets / D1.
 
 Features:
 
-- Run tasks in parallel across apps / packages with pnpm
+- Run tasks in parallel across apps / packages with bun
 - Hono API [proxied with vite](./apps/web/vite.config.ts) during development
 - Hono [RPC client](packages/api-client/src/index.ts) built during development for faster inference
 - Shared Zod validators with drizzle-zod
@@ -38,20 +38,20 @@ Tour:
   - Use any cli to create new apps in here
   - If cloning a git repo in here be sure to delete the `.git` folder so it is not treated as a submodule
 
-> All pnpm commands are run from the root of the repo.
+> All bun commands are run from the root of the repo.
 
 ## Local Setup
 
 ### Install dependencies
 
 ```sh
-pnpm i
+bun install
 ```
 
 ### Create / Update Cloudflare D1 Database id
 
 ```sh
-pnpm dlx wrangler create d1 replace-with-your-database-name-here
+bunx wrangler create d1 replace-with-your-database-name-here
 ```
 
 Update `database_name` and `database_id` in [apps/api/wrangler.toml](./apps/api/wrangler.toml) with the output from wrangler.
@@ -59,13 +59,13 @@ Update `database_name` and `database_id` in [apps/api/wrangler.toml](./apps/api/
 ### Run DB migrations locally
 
 ```sh
-pnpm run -r db:migrate:local
+bun run --filter='*' db:migrate:local
 ```
 
 ### Start Apps
 
 ```sh
-pnpm run dev
+bun run dev
 ```
 
 Visit [http://localhost:5173](http://localhost:5173)
@@ -77,13 +77,13 @@ All requests to `/api` will be proxied to the hono server running on [http://loc
 ### Run DB migrations on Cloudflare D1
 
 ```sh
-pnpm run -r db:migrate:remote
+bun run --filter='*' db:migrate:remote
 ```
 
 ### Deploy
 
 ```sh
-pnpm run deploy
+bun run deploy
 ```
 
 ## Tasks
@@ -91,17 +91,17 @@ pnpm run deploy
 ### Lint
 
 ```sh
-pnpm run lint
+bun run lint
 ```
 
 ### Test
 
 ```sh
-pnpm run test
+bun run test
 ```
 
 ### Build
 
 ```sh
-pnpm run build
+bun run build
 ```

@@ -1,0 +1,9 @@
+[install]
+# Configure workspace support
+workspaces = ["apps/*", "packages/*"]
+
+# Use exact versions for consistency
+exact = true
+
+# Configure registry
+registry = "https://registry.npmjs.org/"
