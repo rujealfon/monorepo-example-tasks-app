@@ -7,11 +7,10 @@
     "paths": {
       "@/api/*": ["./src/*"]
     },
-    "typeRoots": ["./node_modules/@types", "./node_modules/@cloudflare", "../../node_modules/@types", "../../node_modules/@cloudflare"],
+    "typeRoots": ["./node_modules/@types", "../../node_modules/@types"],
     "types": [
       "node",
-      "workers-types/2023-07-01",
-      "vitest-pool-workers"
+      "bun"
     ]
   }
 }

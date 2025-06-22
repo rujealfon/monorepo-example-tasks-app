@@ -1,11 +1,14 @@
-import { drizzle } from "drizzle-orm/d1";
-
-import type { AppEnv } from "../lib/types";
+import { Database } from "bun:sqlite";
+import { drizzle } from "drizzle-orm/bun-sqlite";
 
 import * as schema from "./schema";
 
-export function createDb(env: AppEnv["Bindings"]) {
-  return drizzle(env.DB, {
+const sqlite = new Database(Bun.env.DATABASE_URL || "./database.db");
+
+export function createDb() {
+  return drizzle(sqlite, {
     schema,
   });
 }
+
+export { sqlite };

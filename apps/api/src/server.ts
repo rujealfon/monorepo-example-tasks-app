@@ -1,0 +1,12 @@
+import { serve } from "@hono/node-server";
+
+import app from "./app";
+
+const port = Number(Bun.env.PORT) || 3001;
+
+console.log(`Server is running on http://localhost:${port}`);
+
+serve({
+  fetch: app.fetch,
+  port,
+});

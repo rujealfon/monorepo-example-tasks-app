@@ -1,23 +1,28 @@
-import {
-  applyD1Migrations,
-  env,
-} from "cloudflare:test";
 import { testClient } from "hono/testing";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import { beforeAll, describe, expect, expectTypeOf, it } from "vitest";
 import { ZodIssueCode } from "zod";
 
+import { sqlite } from "@/api/db";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
-import createApp from "@/api/lib/create-app";
+import { createTestApp } from "@/api/lib/create-app";
 
 import router from "./tasks.index";
 
-const client = testClient(createApp().route("/", router), env);
+const client = testClient(createTestApp(router));
 
 describe("tasks routes", async () => {
   beforeAll(async () => {
-    // @ts-expect-error test
-    await applyD1Migrations(env.DB, env.TEST_MIGRATIONS);
+    // Create tables for testing
+    sqlite.exec(`
+      CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        done INTEGER NOT NULL DEFAULT 0,
+        createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+        updatedAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+      );
+    `);
   });
 
   it("post /tasks validates the body when creating", async () => {

@@ -1,21 +1,27 @@
 import { authHandler } from "@hono/auth-js";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { notFound, onError } from "stoker/middlewares";
 
 import type { AppOpenAPI } from "./types";
 
+import { createDb } from "../db";
 import { BASE_PATH } from "./constants";
 import createAuthConfig from "./create-auth-config";
 import createRouter from "./create-router";
 
 export default function createApp() {
   const app = createRouter()
+    .use("*", async (c, next) => {
+      // Set up database connection
+      c.set("db", createDb());
+      return next();
+    })
     .use("*", (c, next) => {
       if (c.req.path.startsWith(BASE_PATH)) {
         return next();
       }
-      // SPA redirect to /index.html
-      const requestUrl = new URL(c.req.raw.url);
-      return c.env.ASSETS.fetch(new URL("/index.html", requestUrl.origin));
+      // Serve static files for SPA
+      return serveStatic({ root: "./public" })(c, next);
     })
     .basePath(BASE_PATH) as AppOpenAPI;
 
@@ -23,7 +29,7 @@ export default function createApp() {
     .use(
       "*",
       async (c, next) => {
-        c.set("authConfig", createAuthConfig(c.env));
+        c.set("authConfig", createAuthConfig());
         return next();
       },
     )

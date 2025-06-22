@@ -8,11 +8,12 @@
   ],
   "scripts": {
     "dev": "bun run --filter='*' dev",
-    "build": "bun run --filter='@tasks-app/api-client' build && bun run --filter='@tasks-app/web' build",
+    "build": "bun run --filter='@tasks-app/api-client' build && bun run --filter='@tasks-app/api' build && bun run --filter='@tasks-app/web' build",
     "test": "bun run --filter='*' test",
     "lint": "bun run --filter='*' lint",
     "deploy": "bun run build && bun run --filter='*' deploy",
-    "clean:deps": "bun run --filter='*' clean:deps && rm -f bun.lock",
+    "start": "bun run --filter='@tasks-app/api' start",
+    "clean:deps": "rm -rf node_modules && bun run --filter='*' clean:deps && rm -f bun.lock",
     "clean:dist": "bun run --filter='*' clean:dist"
   }
 }

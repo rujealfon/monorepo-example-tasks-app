@@ -4,14 +4,13 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
 import type { AppRouteHandler } from "@/api/lib/types";
 
-import { createDb } from "@/api/db";
 import { tasks } from "@/api/db/schema";
 import { ZOD_ERROR_CODES, ZOD_ERROR_MESSAGES } from "@/api/lib/constants";
 
 import type { CreateRoute, GetOneRoute, ListRoute, PatchRoute, RemoveRoute } from "./tasks.routes";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
-  const db = createDb(c.env);
+  const db = c.get("db");
   const tasks = await db.query.tasks.findMany({
     orderBy(fields, operators) {
       return operators.desc(fields.createdAt);
@@ -21,14 +20,14 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 };
 
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
-  const db = createDb(c.env);
+  const db = c.get("db");
   const task = c.req.valid("json");
   const [inserted] = await db.insert(tasks).values(task).returning();
   return c.json(inserted, HttpStatusCodes.OK);
 };
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
-  const db = createDb(c.env);
+  const db = c.get("db");
   const { id } = c.req.valid("param");
   const task = await db.query.tasks.findFirst({
     where(fields, operators) {
@@ -49,7 +48,7 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 };
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
-  const db = createDb(c.env);
+  const db = c.get("db");
   const { id } = c.req.valid("param");
   const updates = c.req.valid("json");
 
@@ -90,12 +89,17 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 };
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
-  const db = createDb(c.env);
+  const db = c.get("db");
   const { id } = c.req.valid("param");
-  const result: D1Response = await db.delete(tasks)
-    .where(eq(tasks.id, id));
 
-  if (result.meta.changes === 0) {
+  // First check if the task exists
+  const existingTask = await db.query.tasks.findFirst({
+    where(fields, operators) {
+      return operators.eq(fields.id, id);
+    },
+  });
+
+  if (!existingTask) {
     return c.json(
       {
         message: HttpStatusPhrases.NOT_FOUND,
@@ -103,6 +107,8 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
       HttpStatusCodes.NOT_FOUND,
     );
   }
+
+  await db.delete(tasks).where(eq(tasks.id, id));
 
   return c.body(null, HttpStatusCodes.NO_CONTENT);
 };
