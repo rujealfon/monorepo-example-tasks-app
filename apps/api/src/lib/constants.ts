@@ -3,6 +3,10 @@ import { createMessageObjectSchema } from "stoker/openapi/schemas";
 
 export const BASE_PATH = "/api" as const;
 
+// eslint-disable-next-line node/no-process-env
+export const IS_PRODUCTION = process.env.NODE_ENV === "production";
+export const IS_DEVELOPMENT = !IS_PRODUCTION;
+
 export const ZOD_ERROR_MESSAGES = {
   REQUIRED: "Required",
   EXPECTED_NUMBER: "Expected number, received nan",

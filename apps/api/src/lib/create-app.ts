@@ -1,5 +1,5 @@
 import { authHandler } from "@hono/auth-js";
-import { serveStatic } from "@hono/node-server/serve-static";
+import { serveStatic } from "hono/bun";
 import { notFound, onError } from "stoker/middlewares";
 
 import type { AppOpenAPI } from "./types";
@@ -16,16 +16,33 @@ export default function createApp() {
       c.set("db", createDb());
       return next();
     })
-    .use("*", (c, next) => {
+    .use("*", async (c, next) => {
+      // Skip all static handling for API routes
       if (c.req.path.startsWith(BASE_PATH)) {
         return next();
       }
-      // Serve static files for SPA
-      return serveStatic({ root: "./public" })(c, next);
-    })
-    .basePath(BASE_PATH) as AppOpenAPI;
 
-  app
+      const path = c.req.path;
+
+      // If the path has a file extension, serve it as a static file
+      if (path.includes(".") && path.lastIndexOf(".") > path.lastIndexOf("/")) {
+        return serveStatic({ root: "./public" })(c, next);
+      }
+
+      // For all other non-API routes (SPA routes), serve index.html
+      const indexFile = Bun.file("./public/index.html");
+      if (await indexFile.exists()) {
+        const content = await indexFile.text();
+        return c.html(content);
+      }
+
+      return next();
+    });
+
+  // Apply the basePath for API routes
+  const apiApp = app.basePath(BASE_PATH) as AppOpenAPI;
+
+  apiApp
     .use(
       "*",
       async (c, next) => {
@@ -37,7 +54,7 @@ export default function createApp() {
     .notFound(notFound)
     .onError(onError);
 
-  return app;
+  return apiApp;
 }
 
 export function createTestApp<R extends AppOpenAPI>(router: R) {

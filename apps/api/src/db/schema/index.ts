@@ -1,26 +1,26 @@
 /* eslint-disable ts/no-redeclare */
 import type { z } from "zod";
 
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { boolean, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 export * from "./auth";
 
-export const tasks = sqliteTable("tasks", {
-  id: integer({ mode: "number" })
-    .primaryKey({ autoIncrement: true }),
+export const tasks = pgTable("tasks", {
+  id: serial()
+    .primaryKey(),
   name: text()
     .notNull(),
-  done: integer({ mode: "boolean" })
+  done: boolean()
     .notNull()
     .default(false),
-  createdAt: integer()
+  createdAt: timestamp()
     .notNull()
-    .$defaultFn(() => Date.now()),
-  updatedAt: integer()
+    .defaultNow(),
+  updatedAt: timestamp()
     .notNull()
-    .$defaultFn(() => Date.now())
-    .$onUpdate(() => Date.now()),
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export const selectTasksSchema = createSelectSchema(tasks);

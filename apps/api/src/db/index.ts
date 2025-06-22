@@ -1,14 +1,17 @@
-import { Database } from "bun:sqlite";
-import { drizzle } from "drizzle-orm/bun-sqlite";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 import * as schema from "./schema";
 
-const sqlite = new Database(Bun.env.DATABASE_URL || "./database.db");
+const databaseUrl = Bun.env.DATABASE_URL;
 
-export function createDb() {
-  return drizzle(sqlite, {
-    schema,
-  });
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL environment variable is required");
 }
 
-export { sqlite };
+const client = postgres(databaseUrl);
+const db = drizzle(client, { schema });
+
+export function createDb() {
+  return db;
+}

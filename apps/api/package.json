@@ -19,6 +19,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "deploy": "cd ../.. && flyctl deploy --config apps/api/fly.toml --dockerfile apps/api/Dockerfile",
     "clean:deps": "rm -rf node_modules",
     "clean:dist": "rm -rf dist"
   },
@@ -35,6 +36,7 @@
     "drizzle-zod": "^0.6.0",
     "hono": "^4.6.13",
     "nodemailer": "^6.9.16",
+    "postgres": "3.4.7",
     "stoker": "^1.4.2",
     "zod": "^3.24.1"
   },

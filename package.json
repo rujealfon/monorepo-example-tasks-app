@@ -11,8 +11,12 @@
     "build": "bun run --filter='@tasks-app/api-client' build && bun run --filter='@tasks-app/api' build && bun run --filter='@tasks-app/web' build",
     "test": "bun run --filter='*' test",
     "lint": "bun run --filter='*' lint",
-    "deploy": "bun run build && bun run --filter='*' deploy",
+    "deploy": "bun run build && flyctl deploy --config apps/api/fly.toml --dockerfile apps/api/Dockerfile",
     "start": "bun run --filter='@tasks-app/api' start",
+    "db:generate": "cd apps/api && drizzle-kit generate",
+    "db:migrate": "cd apps/api && drizzle-kit migrate",
+    "db:push": "cd apps/api && drizzle-kit push",
+    "db:studio": "cd apps/api && drizzle-kit studio",
     "clean:deps": "rm -rf node_modules && bun run --filter='*' clean:deps && rm -f bun.lock",
     "clean:dist": "bun run --filter='*' clean:dist"
   }
