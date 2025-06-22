@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "dev": "bun run --filter='*' dev",
-    "build": "bun run --filter='@tasks-app/api-client' build && bun run --filter='@tasks-app/api' build && bun run --filter='@tasks-app/web' build",
+    "build": "bun run --filter='@tasks-app/api-client' build && bun run --filter='@tasks-app/web' build",
     "test": "bun run --filter='*' test",
     "lint": "bun run --filter='*' lint",
     "deploy": "bun run build && flyctl deploy --config apps/api/fly.toml --dockerfile apps/api/Dockerfile",

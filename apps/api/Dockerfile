@@ -17,7 +17,7 @@ RUN bun install
 # Copy all source code
 COPY . .
 
-# Build the entire project (api-client, api, and web)
+# Build only the web app and api-client (api will run from source)
 ENV NODE_ENV=production
 RUN bun run build
 
@@ -27,6 +27,6 @@ WORKDIR /app/apps/api
 # Expose port 3000
 EXPOSE 3000
 
-# Run the app
+# Run the app directly from source
 USER bun
-CMD ["bun", "run", "start"]
+CMD ["bun", "run", "src/server.ts"]
