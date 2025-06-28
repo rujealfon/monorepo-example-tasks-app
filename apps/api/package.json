@@ -9,6 +9,9 @@
   },
   "scripts": {
     "dev": "wrangler dev",
+    "dev:node": "tsx watch src/server.ts",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/server.js",
     "deploy": "wrangler deploy --minify",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

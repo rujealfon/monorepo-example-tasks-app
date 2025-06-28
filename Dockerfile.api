@@ -1,0 +1,54 @@
+FROM node:20-alpine AS base
+
+# Install pnpm
+RUN corepack enable
+
+FROM base AS deps
+WORKDIR /app
+
+# Copy root package.json and pnpm workspace config
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copy package.json files for all workspaces
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+COPY packages/*/package.json ./packages/*/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+FROM base AS builder
+WORKDIR /app
+
+# Copy dependencies
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=deps /app/packages ./packages
+
+# Copy source code
+COPY apps/api ./apps/api
+COPY tsconfig.json ./
+COPY packages ./packages
+
+# Build the API
+WORKDIR /app/apps/api
+RUN pnpm build
+
+FROM base AS runtime
+WORKDIR /app
+
+# Copy dependencies
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
+
+# Copy built application
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/src ./apps/api/src
+COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/packages ./packages
+
+WORKDIR /app/apps/api
+
+EXPOSE 3000
+
+CMD ["node", "dist/server.js"]

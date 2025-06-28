@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tasks_app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/tasks_app
+      AUTH_SECRET: your-secret-key-change-this-in-production
+      AUTH_URL: http://localhost/api/auth
+      GITHUB_CLIENT_ID: your-github-client-id
+      GITHUB_CLIENT_SECRET: your-github-client-secret
+      LOG_LEVEL: debug
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./apps/api/src:/app/apps/api/src:ro
+
+  # Web Service
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+  # Development services (optional - for development with hot reload)
+  api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+      target: deps
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/tasks_app
+      AUTH_SECRET: your-secret-key-change-this-in-production
+      AUTH_URL: http://localhost:3001/api/auth
+      GITHUB_CLIENT_ID: your-github-client-id
+      GITHUB_CLIENT_SECRET: your-github-client-secret
+      LOG_LEVEL: debug
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/api/node_modules
+    working_dir: /app/apps/api
+    command: ["pnpm", "dev:node"]
+    profiles:
+      - dev
+
+  web-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      target: deps
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api-dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/web/node_modules
+    working_dir: /app/apps/web
+    command: ["pnpm", "dev", "--host", "0.0.0.0"]
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
