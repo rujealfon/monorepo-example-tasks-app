@@ -2,13 +2,14 @@ import type { AuthConfig } from "@hono/auth-js";
 
 import GitHub from "@auth/core/providers/github";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { drizzle } from "drizzle-orm/d1";
 
 import type { AppEnv } from "./types";
 
+import { createDb } from "../db";
+
 export default function createAuthConfig(env: AppEnv["Bindings"]): AuthConfig {
   return {
-    adapter: DrizzleAdapter(drizzle(env.DB)),
+    adapter: DrizzleAdapter(createDb(env)),
     secret: env.AUTH_SECRET,
     providers: [
       GitHub({

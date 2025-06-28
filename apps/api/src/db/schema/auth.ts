@@ -1,26 +1,24 @@
 import type { AdapterAccountType } from "@auth/core/adapters";
 
-import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 
-export const users = sqliteTable("user", {
-  id: text()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  name: text(),
-  email: text().unique(),
-  emailVerified: integer({ mode: "timestamp_ms" }),
-  image: text(),
+export const users = pgTable("user", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name"),
+  email: text("email").unique(),
+  emailVerified: timestamp("email_verified", { mode: "date" }),
+  image: text("image"),
 });
 
-export const accounts = sqliteTable(
+export const accounts = pgTable(
   "account",
   {
-    userId: text("userId")
+    userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     type: text("type").$type<AdapterAccountType>().notNull(),
     provider: text("provider").notNull(),
-    providerAccountId: text("providerAccountId").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
     expires_at: integer("expires_at"),
@@ -36,20 +34,20 @@ export const accounts = sqliteTable(
   }),
 );
 
-export const sessions = sqliteTable("session", {
-  sessionToken: text("sessionToken").primaryKey(),
-  userId: text("userId")
+export const sessions = pgTable("session", {
+  sessionToken: text("session_token").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+  expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
-export const verificationTokens = sqliteTable(
-  "verificationToken",
+export const verificationTokens = pgTable(
+  "verification_token",
   {
     identifier: text("identifier").notNull(),
     token: text("token").notNull(),
-    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
   },
   verificationToken => ({
     compositePk: primaryKey({
@@ -58,20 +56,18 @@ export const verificationTokens = sqliteTable(
   }),
 );
 
-export const authenticators = sqliteTable(
+export const authenticators = pgTable(
   "authenticator",
   {
-    credentialID: text("credentialID").notNull().unique(),
-    userId: text("userId")
+    credentialID: text("credential_id").notNull().unique(),
+    userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    providerAccountId: text("providerAccountId").notNull(),
-    credentialPublicKey: text("credentialPublicKey").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
+    credentialPublicKey: text("credential_public_key").notNull(),
     counter: integer("counter").notNull(),
-    credentialDeviceType: text("credentialDeviceType").notNull(),
-    credentialBackedUp: integer("credentialBackedUp", {
-      mode: "boolean",
-    }).notNull(),
+    credentialDeviceType: text("credential_device_type").notNull(),
+    credentialBackedUp: integer("credential_backed_up").notNull(),
     transports: text("transports"),
   },
   authenticator => ({
