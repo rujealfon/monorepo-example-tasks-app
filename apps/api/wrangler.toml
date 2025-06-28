@@ -9,8 +9,8 @@ binding = "ASSETS"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "tasks-app"
-database_id = "000-000-000-000"
+database_name = "tasks-app-db-sg"
+database_id = "4c2d0d93-0d0d-47e1-9a15-7493f9775f8b"
 migrations_dir = "src/db/migrations"
 
 [vars]
